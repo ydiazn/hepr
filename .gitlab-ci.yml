@@ -12,7 +12,8 @@ run-tests:
  script:
  - source run-test.sh
 
-tags:
- - test
- - python
- - coverage
+ tags:
+  - test
+  - python
+  - coverage
+
