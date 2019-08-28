@@ -1,0 +1,9 @@
+numpy
+matplotlib
+
+# Dicom
+pydicom
+deid
+
+# tests
+coverage

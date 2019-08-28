@@ -1,0 +1,18 @@
+before_script:
+ - source ~/proxy
+ - python3 -m venv ../venv
+ - source ../venv/bin/activate
+ - pip install -r requeriments.txt
+
+stages:
+ - tests
+
+run-tests:
+ stage: tests
+ script:
+ - source run-test.sh
+
+tags:
+ - test
+ - python
+ - coverage
