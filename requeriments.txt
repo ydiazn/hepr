@@ -1,5 +1,9 @@
+
 numpy
+scipy
 matplotlib
+pillow
+opencv-python
 
 # Dicom
 pydicom
@@ -7,3 +11,4 @@ deid
 
 # tests
 coverage
+factory-boy
