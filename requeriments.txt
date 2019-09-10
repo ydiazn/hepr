@@ -1,9 +1,9 @@
-
 numpy
 scipy
 matplotlib
 pillow
 opencv-python
+pyswarm
 
 # Dicom
 pydicom
