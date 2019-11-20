@@ -1,0 +1,20 @@
+ipython
+
+numpy
+# pandas
+# scipy
+# matplotlib
+# pillow
+# opencv-python
+
+pyswarms
+pyyaml
+# scikit-learn
+
+# Dicom
+pydicom
+deid
+
+# tests
+coverage
+factory-boy
