@@ -1,6 +1,7 @@
 ipython
 
 numpy
+imageio
 # pandas
 # scipy
 # matplotlib
@@ -9,7 +10,7 @@ numpy
 
 pyswarms
 pyyaml
-# scikit-learn
+scikit-learn
 
 # Dicom
 pydicom
