@@ -9,7 +9,7 @@ import numpy as np
 from almiky.moments.matrix import QKrawtchoukMatrix
 from almiky.hidders.frequency import HidderEightFrequencyCoeficients
 
-from src.optimization import hide
+from src.hidders import hidders as hide
 
 
 def insert_mock(cover_work, data):

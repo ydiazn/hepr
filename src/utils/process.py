@@ -3,9 +3,10 @@ from pathlib import Path
 import imageio
 import numpy as np
 import pyswarms as ps
+from almiky.metrics import metrics
 
 from src.optimization import functions as fx
-from src.optimization import hide
+from src.hidders import hidders as hide
 from src.utils.reduction import average_first_eight_coeficients
 
 def qkrawtchouk8x8(indir, config, output, data):
@@ -17,7 +18,11 @@ def qkrawtchouk8x8(indir, config, output, data):
 
         kwargs = dict(cover_work=cover_work, data=data, get_ws_work=hide.qkrawtchouk8x8)
         cost, pos = optimizer.optimize(fx.psnr, config['iterations'], config['n_processes'], **kwargs)
-        return (image.name, *coeficients, -cost, *pos)
+
+        # Comparing with DCT
+        ws_work = hide.dct8x8(cover_work, data)
+        psnr = metrics.psnr(cover_work, ws_work)
+        return (image.name, *coeficients, *pos, -cost, psnr)
 
     # Create bounds
     max_bound = config['optimizer']['bounds']['min']
@@ -32,6 +37,20 @@ def qkrawtchouk8x8(indir, config, output, data):
         bounds=bounds
     )
     # Perform optimization
+    indir = Path(indir)
+    output = Path(output)
+    results = [calculate(image) for image in indir.iterdir()]
+    np.savetxt(str(output), results, fmt='%s')
+
+
+def dct8x8(indir, output, data):
+
+    def calculate(image):
+        cover_work = imageio.imread(str(image))
+        ws_work = hide.dct8x8(cover_work, data)
+        psnr = metrics.psnr(cover_work, ws_work)
+        return (image.name, psnr)
+
     indir = Path(indir)
     output = Path(output)
     results = [calculate(image) for image in indir.iterdir()]

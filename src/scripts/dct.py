@@ -4,7 +4,6 @@ import sys
 
 from src.utils import process
 
-
 def main():
     parser = argparse.ArgumentParser(
         description='Tool optimize data hiding methods with orthogonal moments')
@@ -20,21 +19,12 @@ def main():
         required=True,
         help="File with data to hide"
     )
-    parser.add_argument(
-        "-c",
-        "--config",
-        required=True,
-        help="Config file with optimization and data hidding parameters"
-    )
     args = parser.parse_args()
-    with open(args.config, 'r') as file:
-        config = json.loads(file.read())
-
     with open(args.data, 'r') as file:
         data = file.read()
 
-    process.qkrawtchouk8x8(
-        indir=args.indir, config=config, output=args.output, data=data)
+    process.dct8x8(
+        indir=args.indir, output=args.output, data=data)
 
 
 if __name__ == "__main__":

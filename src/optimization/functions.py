@@ -22,14 +22,13 @@ def psnr(swarm, cover_work, data, get_ws_work):
     (stego) work wich is obtained with (get_ws_work) callback. 
     This function recive a swarm particle, cover work and data
     '''
-    from almiky.exceptions import NotMatrixQuasiOrthogonal
     fitness = np.empty(swarm.shape[0])
     for i, particle in enumerate(swarm):
         try:
             ws_work = get_ws_work(particle, cover_work, data)
             psnr = metrics.psnr(cover_work, ws_work)
-        except NotMatrixQuasiOrthogonal:
+        except:
             psnr = 0
         finally:
-            fitness[i] = -1 * psnr
+            fitness[i] = -psnr
     return fitness

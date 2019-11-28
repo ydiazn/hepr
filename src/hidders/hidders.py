@@ -1,5 +1,6 @@
 import numpy as np
-from almiky.moments.matrix import QKrawtchoukMatrix
+from almiky.utils.ortho_matrix import dct
+from almiky.moments.matrix import Transform, QKrawtchoukMatrix
 from almiky.hidders import frequency
 from almiky.exceptions import NotMatrixQuasiOrthogonal
 
@@ -13,6 +14,14 @@ def qkrawtchouk8x8(particle, cover_work, data):
     transform = QKrawtchoukMatrix(8, **kwargs)
     if not(ident(transform.values) == 0 and ident(transform.values.T) == 0):
         raise NotMatrixQuasiOrthogonal
+    hidder = frequency.HidderEightFrequencyCoeficients(transform)
+
+    watermarked_array = hidder.insert(cover_work, data)
+    return watermarked_array
+
+
+def dct8x8(cover_work, data):
+    transform = Transform(dct)
     hidder = frequency.HidderEightFrequencyCoeficients(transform)
 
     watermarked_array = hidder.insert(cover_work, data)
