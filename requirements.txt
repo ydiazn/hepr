@@ -2,7 +2,7 @@ ipython
 
 numpy
 imageio
-# pandas
+pandas
 # scipy
 # matplotlib
 # pillow
