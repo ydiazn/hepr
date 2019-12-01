@@ -15,7 +15,6 @@ def qkrawtchouk8x8(indir, config, output, data):
     def calculate(image):
         cover_work = imageio.imread(str(image))
         # First eight coeficient averaging
-        coeficients = average_first_eight_coeficients(cover_work[:, :, 1], 8)
 
         kwargs = dict(cover_work=cover_work, data=data, get_ws_work=hide.qkrawtchouk8x8)
         cost, pos = optimizer.optimize(fx.psnr, config['iterations'], config['n_processes'], **kwargs)
@@ -23,7 +22,7 @@ def qkrawtchouk8x8(indir, config, output, data):
         # Comparing with DCT
         ws_work = hide.dct8x8(cover_work, data)
         psnr = metrics.psnr(cover_work, ws_work)
-        return (image.name, *coeficients, *pos, -cost, psnr)
+        return (image.name, *pos, -cost, psnr)
 
     # Create bounds
     max_bound = config['optimizer']['bounds']['min']
@@ -96,3 +95,37 @@ def dct8x8(indir, output, data):
     output = Path(output)
     results = [calculate(image) for image in indir.iterdir()]
     np.savetxt(str(output), results, fmt='%s')
+
+
+def qkrawtchouk8x8_trained(indir, file, data, model):
+
+    def calculate(image):
+        import torch
+        from torch.autograd import Variable
+        from src.nets.regression import RegressionNet
+        from src.hidders import hidders
+        from almiky.exceptions import NotMatrixQuasiOrthogonal
+
+        cover_work = imageio.imread(str(image))
+        # First eight coeficient averaging
+        coeficients = average_first_eight_coeficients(cover_work[:, :, 1], 8)
+
+        model.eval()
+        coeficients = torch.from_numpy(coeficients).float()
+        imput = Variable(coeficients)
+        output = model(imput)
+
+        p, q = output.detach().numpy()
+        try:
+            ws_work = hidders.qkrawtchouk8x8((p, q), cover_work, data)
+            psnr_qk = metrics.psnr(cover_work, ws_work)
+        except NotMatrixQuasiOrthogonal:
+            psnr_qk = 0
+
+        ws_work = hide.dct8x8(cover_work, data)
+        psnr_dct = metrics.psnr(cover_work, ws_work)
+        return (psnr_qk, psnr_dct)
+
+    indir = Path(indir)
+    results = [calculate(image) for image in indir.iterdir()]
+    np.savetxt(file, results, fmt='%s')
