@@ -4,6 +4,7 @@ import imageio
 import numpy as np
 import pyswarms as ps
 from almiky.metrics import metrics
+from almiky.utils.blocks_class import BlocksImage
 
 from src.optimization import functions as fx
 from src.hidders import hidders as hide
@@ -40,6 +41,46 @@ def qkrawtchouk8x8(indir, config, output, data):
     indir = Path(indir)
     output = Path(output)
     results = [calculate(image) for image in indir.iterdir()]
+    np.savetxt(str(output), results, fmt='%s')
+
+
+def qkrawtchouk8x8_per_block(indir, config, output, data):
+
+    def calculate(cover_block):
+        kwargs = dict(cover_work=cover_block, data=data, get_ws_work=hide.qkrawtchouk8x8)
+        cost, pos = optimizer.optimize(fx.psnr, config['iterations'], config['n_processes'], **kwargs)
+        coeficients = cover_block.reshape(-1).tolist()
+
+        # Comparing with DCT
+        ws_block = hide.dct8x8(cover_block, data)
+        psnr = metrics.psnr(cover_block, ws_block)
+        p, q = pos
+        print("QKrawtchouk (p: {}, q: {}, psnr: {}), DCT: {}".format(p, q, -cost, psnr))
+        return (*coeficients, *pos, -cost, psnr)
+
+    # Create bounds
+    max_bound = config['optimizer']['bounds']['min']
+    min_bound = config['optimizer']['bounds']['max']
+    bounds = (min_bound, max_bound)
+
+    # Call instance of PSO
+    optimizer = ps.single.GlobalBestPSO(
+        n_particles=config['optimizer']['n_particle'],
+        dimensions=config['optimizer']['dimensions'],
+        options=config['optimizer']['options'],
+        bounds=bounds
+    )
+    # Perform optimization
+    indir = Path(indir)
+    output = Path(output)
+    results = []
+    for image in indir.iterdir():
+        cover_work = imageio.imread(str(image))
+        block_manage = BlocksImage(cover_work)
+        for i in range(block_manage.max_num_blocks()):
+            cover_block = block_manage.get_block(i)
+            results.append(calculate(cover_block))
+
     np.savetxt(str(output), results, fmt='%s')
 
 
