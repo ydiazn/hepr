@@ -21,8 +21,8 @@ def train(model, image_dir, targets, optimizer, epoch, loss_func, preprocess, lo
         input = preprocess(image)
         input = input.unsqueeze(0)
         target = targets[i]
-        p = torch.FoatTensor(target[0]).unsqueeze()
-        q = torch.FoatTensor(target[1]).unsqueeze()
+        p = torch.FloatTensor(target[0]).unsqueeze(0)
+        q = torch.FloatTensor(target[1]).unsqueeze(0)
         target = torch.from_numpy(target).float()
         # optimization
         optimizer.zero_grad()
@@ -43,6 +43,7 @@ def regresion_mse(image_dir, targets, output):
     momentum = 0.9
     epochs=100
 
+    targets = targets.reshape(-1, 2, 1)
     # Convolutional neural network (ResNet18)
     model = models.resnet18(pretrained=False)
     num_ftrs = model.fc.in_features
