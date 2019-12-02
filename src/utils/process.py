@@ -5,6 +5,8 @@ import numpy as np
 import pyswarms as ps
 from almiky.metrics import metrics
 from almiky.utils.blocks_class import BlocksImage
+from PIL import Image
+from torchvision import transforms
 
 from src.optimization import functions as fx
 from src.hidders import hidders as hide
@@ -99,22 +101,19 @@ def dct8x8(indir, output, data):
 
 def qkrawtchouk8x8_trained(indir, file, data, model):
 
-    def calculate(image):
+    def calculate(image, preprocess):
         import torch
         from torch.autograd import Variable
         from src.nets.regression import RegressionNet
         from src.hidders import hidders
         from almiky.exceptions import NotMatrixQuasiOrthogonal
 
-        cover_work = imageio.imread(str(image))
-        # First eight coeficient averaging
-        coeficients = average_first_eight_coeficients(cover_work[:, :, 1], 8)
-
         model.eval()
-        coeficients = torch.from_numpy(coeficients).float()
-        imput = Variable(coeficients)
-        output = model(imput)
-
+        input = Image.open(image)
+        input = preprocess(input)
+        input = input.unsqueeze(0)
+        output = model(input)
+        cover_work = imageio.imread(image)
         p, q = output.detach().numpy()
         try:
             ws_work = hidders.qkrawtchouk8x8((p, q), cover_work, data)
@@ -127,5 +126,6 @@ def qkrawtchouk8x8_trained(indir, file, data, model):
         return (psnr_qk, psnr_dct)
 
     indir = Path(indir)
-    results = [calculate(image) for image in indir.iterdir()]
+    preprocess = transforms.Compose([transforms.ToTensor()])
+    results = [calculate(image, preprocess) for image in indir.iterdir()]
     np.savetxt(file, results, fmt='%s')

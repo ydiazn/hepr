@@ -8,25 +8,23 @@ import torch.nn.functional as F
 import torch.utils.data as Data
 from torchvision import datasets, transforms, models
 import imageio
+from PIL import Image
 
 from src.nets.regression import RegressionNet
 
 
-def train(model, image_dir, targets, optimizer, epoch, loss_func, log_interval=2):
+def train(model, image_dir, targets, optimizer, epoch, loss_func, preprocess, log_interval=2):
     model.train()
     for i, file in enumerate(sorted(Path(image_dir).iterdir())):
         # Setp data and target
-        image = imageio.imread(file)
-        image = image.reshape(*image.shape, -1)
-        image = image.transpose(3, 2, 0, 1)
-        data = torch.from_numpy(image).float()
-        data = Variable(data)
+        image = Image.open(file)
+        input = preprocess(image)
+        input = input.unsqueeze(0)
         target = targets[i]
         target = torch.from_numpy(target).float()
-        target = Variable(target)
         # optimization
         optimizer.zero_grad()
-        output = model(data)
+        output = model(input)
         loss = loss_func(output, target)
         loss.backward()
         optimizer.step()
@@ -41,12 +39,16 @@ def regresion_mse(image_dir, targets, output):
     lr = 0.001
     momentum = 0.9
     epochs=100
+
     targets = targets.reshape(-1, 2, 1)
 
     # Convolutional neural network (ResNet18)
-    model = models.resnet18(pretrained=True)
+    model = models.resnet18(pretrained=False)
     num_ftrs = model.fc.in_features
-    model.fc = nn.Linear(num_ftrs, 2)
+    model.fc = nn.Linear(num_ftrs, 1)
+    preprocess = transforms.Compose([
+        transforms.ToTensor(),
+    ])
 
     # define the network
     optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=momentum)
@@ -54,6 +56,6 @@ def regresion_mse(image_dir, targets, output):
 
     #assert False, output
     for epoch in range(1, epochs + 1):
-        train(model, image_dir, targets, optimizer, epoch, loss_func)
+        train(model, image_dir, targets, optimizer, epoch, loss_func, preprocess)
 
     torch.save(model, output)

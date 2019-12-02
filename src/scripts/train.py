@@ -22,7 +22,7 @@ def main():
 
     args = parser.parse_args()
 
-    targets = np.loadtxt(args.targets, usecols=(1,2))
+    targets = np.loadtxt(args.targets, usecols=(1, 2))
 
     train.regresion_mse(args.images, targets, args.output)
 
