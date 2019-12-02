@@ -39,7 +39,7 @@ def qkrawtchouk8x8(indir, config, output, data):
     # Perform optimization
     indir = Path(indir)
     output = Path(output)
-    results = [calculate(image) for image in indir.iterdir()]
+    results = [calculate(image) for image in sorted(indir.iterdir())]
     np.savetxt(str(output), results, fmt='%s')
 
 
