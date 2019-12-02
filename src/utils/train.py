@@ -21,14 +21,16 @@ def train(model, image_dir, targets, optimizer, epoch, loss_func, preprocess, lo
         input = preprocess(image)
         input = input.unsqueeze(0)
         target = targets[i]
-        p = torch.FloatTensor(target[0]).unsqueeze(0)
-        q = torch.FloatTensor(target[1]).unsqueeze(0)
         target = torch.from_numpy(target).float()
+        p, q = target
         # optimization
         optimizer.zero_grad()
-        output = model(input)
-        loss = loss_func(output, p)
-        loss += loss_func(output, q)
+        ps, qs = model(input)[0]
+        ps = ps.unsqueeze(0)
+        qs = qs.unsqueeze(0)
+
+        loss = loss_func(ps, p)
+        loss += loss_func(qs, q)
         loss.backward()
         optimizer.step()
         if i % log_interval == 0:
@@ -47,7 +49,7 @@ def regresion_mse(image_dir, targets, output):
     # Convolutional neural network (ResNet18)
     model = models.resnet18(pretrained=False)
     num_ftrs = model.fc.in_features
-    model.fc = nn.Linear(num_ftrs, 1)
+    model.fc = nn.Linear(num_ftrs, 2)
     preprocess = transforms.Compose([
         transforms.ToTensor(),
     ])
