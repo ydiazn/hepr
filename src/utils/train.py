@@ -45,7 +45,7 @@ def regresion_mse(image_dir, targets, output):
     # Convolutional neural network (ResNet18)
     model = models.resnet18(pretrained=False)
     num_ftrs = model.fc.in_features
-    model.fc = nn.Linear(num_ftrs, 1)
+    model.fc = nn.Linear(num_ftrs, 2)
     preprocess = transforms.Compose([
         transforms.ToTensor(),
     ])
