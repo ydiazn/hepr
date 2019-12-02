@@ -55,3 +55,5 @@ def regresion_mse(image_dir, targets, output):
     #assert False, output
     for epoch in range(1, epochs + 1):
         train(model, image_dir, targets, optimizer, epoch, loss_func)
+
+    torch.save(model, output)
