@@ -114,11 +114,11 @@ def qkrawtchouk8x8_trained(indir, file, data, model):
         input = input.unsqueeze(0)
         output = model(input)
         cover_work = imageio.imread(image)
-        p, q = output.detach().numpy()
+        p, q = output.detach().numpy()[0]
         try:
             ws_work = hidders.qkrawtchouk8x8((p, q), cover_work, data)
             psnr_qk = metrics.psnr(cover_work, ws_work)
-        except NotMatrixQuasiOrthogonal:
+        except (NotMatrixQuasiOrthogonal, ValueError):
             psnr_qk = 0
 
         ws_work = hide.dct8x8(cover_work, data)
