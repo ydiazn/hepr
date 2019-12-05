@@ -63,3 +63,35 @@ def regresion_mse(image_dir, targets, output):
         train(model, image_dir, targets, optimizer, epoch, loss_func, preprocess)
 
     torch.save(model, output)
+
+
+def linear_network_block(coeficients, targets, output_file, epochs=100):
+
+    # Setup
+    lr = 0.001
+    momentum = 0.9
+
+    model = RegressionNet(n_feature=64, n_output=2)
+    model.train()
+
+    # define the network
+    optimizer = torch.optim.SGD(model.parameters(), lr=lr, momentum=momentum)
+    loss_func = torch.nn.MSELoss()
+
+    #assert False, output
+    for epoch in range(1, epochs + 1):
+        target = Variable(torch.from_numpy(targets).float())
+        data = Variable(torch.from_numpy(coeficients).float())
+
+        # optimization
+        optimizer.zero_grad()
+        output = model(data)
+
+        loss = loss_func(output, target)
+        loss.backward()
+        optimizer.step()
+
+        print('Train Epoch: {} Loss: {:.6f}'.format(epoch, loss.item()))
+
+    torch.save(model, output_file)
+
