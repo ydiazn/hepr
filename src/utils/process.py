@@ -99,22 +99,17 @@ def dct8x8(indir, output, data):
     np.savetxt(str(output), results, fmt='%s')
 
 
-def qkrawtchouk8x8_trained(indir, file, data, model):
+def qkrawtchouk8x8_DCT(indir, file, data, parameters):
 
-    def calculate(image, preprocess):
+    def calculate(image, preprocess, parameters):
         import torch
         from torch.autograd import Variable
         from src.nets.regression import RegressionNet
         from src.hidders import hidders
         from almiky.exceptions import NotMatrixQuasiOrthogonal
 
-        model.eval()
-        input = Image.open(image)
-        input = preprocess(input)
-        input = input.unsqueeze(0)
-        output = model(input)
         cover_work = imageio.imread(image)
-        p, q = output.detach().numpy()[0]
+        p, q = parameters
         try:
             ws_work = hidders.qkrawtchouk8x8((p, q), cover_work, data)
             psnr_qk = metrics.psnr(cover_work, ws_work)
@@ -127,7 +122,10 @@ def qkrawtchouk8x8_trained(indir, file, data, model):
 
     indir = Path(indir)
     preprocess = transforms.Compose([transforms.ToTensor()])
-    results = [calculate(image, preprocess) for image in indir.iterdir()]
+    results = [
+        calculate(image, preprocess, parameters[i])
+        for i, image in enumerate(sorted(indir.iterdir()))
+    ]
     np.savetxt(file, results, fmt='%s')
 
 

@@ -4,7 +4,7 @@ import sys
 
 import torch
 
-from src.utils import process
+from src.utils import infer
 
 
 def main():
@@ -15,13 +15,7 @@ def main():
         "-o",
         "--output",
         required=True,
-        help="File where fitness will be saved")
-    parser.add_argument(
-        "-d",
-        "--data",
-        required=True,
-        help="File with data to hide"
-    )
+        help="File where parameters values will be saved")
     parser.add_argument(
         "-m",
         "--model",
@@ -30,13 +24,10 @@ def main():
     )
     args = parser.parse_args()
 
-    with open(args.data, 'r') as file:
-        data = file.read()
-
     model = torch.load(args.model)
 
-    process.qkrawtchouk8x8_trained(
-        indir=args.indir, file=args.output, data=data, model=model)
+    infer.qkrawtchouk8x8_inference(
+        indir=args.indir, file=args.output, model=model)
 
 
 if __name__ == "__main__":
