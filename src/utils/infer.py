@@ -3,10 +3,14 @@ from pathlib import Path
 import imageio
 import numpy as np
 from PIL import Image
+import torch
 from torchvision import transforms
+from torch.autograd import Variable
+from almiky.metrics import metrics
+from src.utils import reduction
 
 
-def qkrawtchouk8x8_inference(indir, file, model):
+def convolutional_inference(indir, file, model):
 
     def calculate(image, preprocess):
         import torch
@@ -25,6 +29,14 @@ def qkrawtchouk8x8_inference(indir, file, model):
     indir = Path(indir)
     preprocess = transforms.Compose([transforms.ToTensor()])
     results = [calculate(image, preprocess) for image in indir.iterdir()]
+    np.savetxt(file, results, fmt='%s')
+
+
+def lineal_inference(data, model, file):
+    model.eval()
+    data = Variable(torch.from_numpy(data).float())
+    output = model(data)
+    results = output.detach().numpy()
     np.savetxt(file, results, fmt='%s')
 
 

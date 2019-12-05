@@ -65,13 +65,10 @@ def regresion_mse(image_dir, targets, output):
     torch.save(model, output)
 
 
-def linear_network_block(coeficients, targets, output_file, epochs=100):
-
+def linear_network(model, coeficients, targets, output_file, epochs=100):
     # Setup
     lr = 0.001
     momentum = 0.9
-
-    model = RegressionNet(n_feature=64, n_output=2)
     model.train()
 
     # define the network
@@ -94,4 +91,17 @@ def linear_network_block(coeficients, targets, output_file, epochs=100):
         print('Train Epoch: {} Loss: {:.6f}'.format(epoch, loss.item()))
 
     torch.save(model, output_file)
+
+
+def linear_network_block(*args, **kwargs):
+
+    model = RegressionNet(n_feature=64, n_output=2)
+    linear_network(model, *args, **kwargs)
+
+
+def linear_network_coeficients(*args, **kwargs):
+
+    model = RegressionNet(n_feature=8, n_output=2)
+    linear_network(model, *args, **kwargs)
+
 
