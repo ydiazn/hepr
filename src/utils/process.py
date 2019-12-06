@@ -27,8 +27,8 @@ def qkrawtchouk8x8(indir, config, output, data):
         return (image.name, *pos, -cost, psnr)
 
     # Create bounds
-    max_bound = config['optimizer']['bounds']['min']
-    min_bound = config['optimizer']['bounds']['max']
+    max_bound = config['optimizer']['bounds']['max']
+    min_bound = config['optimizer']['bounds']['min']
     bounds = (min_bound, max_bound)
 
     # Call instance of PSO

@@ -109,5 +109,3 @@ def linear_network_coeficients(*args, **kwargs):
 
     model = nn_regression.RegressionNet(n_feature=8, n_output=2)
     linear_network(model, *args, **kwargs)
-
-
