@@ -10,7 +10,7 @@ from torchvision import datasets, transforms, models
 import imageio
 from PIL import Image
 
-from src.nets.regression import RegressionNet
+from src.nets import regression as nn_regression
 
 
 def train(model, image_dir, targets, optimizer, epoch, loss_func, preprocess, log_interval=2):
@@ -95,13 +95,19 @@ def linear_network(model, coeficients, targets, output_file, epochs=100):
 
 def linear_network_block(*args, **kwargs):
 
-    model = RegressionNet(n_feature=64, n_output=2)
+    model = nn_regression.RegressionNet(n_feature=64, n_output=2)
+    linear_network(model, *args, **kwargs)
+
+
+def slinear_network_block(*args, **kwargs):
+
+    model = nn_regression.SimpleRegressionNet(n_feature=64, n_output=2)
     linear_network(model, *args, **kwargs)
 
 
 def linear_network_coeficients(*args, **kwargs):
 
-    model = RegressionNet(n_feature=8, n_output=2)
+    model = nn_regression.RegressionNet(n_feature=8, n_output=2)
     linear_network(model, *args, **kwargs)
 
 

@@ -28,7 +28,7 @@ def convolutional_inference(indir, file, model):
 
     indir = Path(indir)
     preprocess = transforms.Compose([transforms.ToTensor()])
-    results = [calculate(image, preprocess) for image in indir.iterdir()]
+    results = [calculate(image, preprocess) for image in sorted(indir.iterdir())]
     np.savetxt(file, results, fmt='%s')
 
 

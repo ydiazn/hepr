@@ -26,7 +26,7 @@ def main():
 
     model = torch.load(args.model)
 
-    infer.qkrawtchouk8x8_inference(
+    infer.convolutional_inference(
         indir=args.indir, file=args.output, model=model)
 
 
