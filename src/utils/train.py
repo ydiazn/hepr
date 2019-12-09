@@ -38,12 +38,13 @@ def train(model, image_dir, targets, optimizer, epoch, loss_func, preprocess, lo
                 epoch, loss.item()))
 
 
-def regresion_mse(image_dir, targets, output):
+def regresion_mse(image_dir, targets, normalization, output):
 
     # Setup
     lr = 0.001
     momentum = 0.9
     epochs=100
+    mean, std = normalization
 
     targets = targets.reshape(-1, 2, 1)
     # Convolutional neural network (ResNet18)
@@ -52,6 +53,7 @@ def regresion_mse(image_dir, targets, output):
     model.fc = nn.Linear(num_ftrs, 2)
     preprocess = transforms.Compose([
         transforms.ToTensor(),
+        transforms.Normalize(mean, std)
     ])
 
     # define the network

@@ -10,7 +10,7 @@ from almiky.metrics import metrics
 from src.utils import reduction
 
 
-def convolutional_inference(indir, file, model):
+def convolutional_inference(indir, file, model, normalization):
 
     def calculate(image, preprocess):
         import torch
@@ -27,7 +27,11 @@ def convolutional_inference(indir, file, model):
         return (p, q)
 
     indir = Path(indir)
-    preprocess = transforms.Compose([transforms.ToTensor()])
+    mean, std = normalization
+    preprocess = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize(mean, std)
+    ])
     results = [calculate(image, preprocess) for image in sorted(indir.iterdir())]
     np.savetxt(file, results, fmt='%s')
 
@@ -45,7 +49,7 @@ def average_per_block(indir, output):
 
     def calculate(file):
         image = imageio.imread(file)[:,:,0]
-        average = reduction.average_first_eight_pixels(image, 8)
+        average = reduction.average_first_eight_coeficients(image, 8)
         average /= np.linalg.norm(average)
         return average.tolist()
 
