@@ -16,22 +16,8 @@ def multiouput_regressor(input, target, input_test, target_test, output):
     X_test = input_test
     y_test = target_test
 
-    # Create a random dataset
-    # rng = np.random.RandomState(1)
-    # X = np.sort(200 * rng.rand(600, 1) - 100, axis=0)
-    # y = np.array([np.pi * np.sin(X).ravel(), np.pi * np.cos(X).ravel()]).T
-    # y += (0.5 - rng.rand(*y.shape))
-    #train_size = 150
-
-    # X_train, X_test, y_train, y_test = train_test_split(
-    #     X, y, test_size=0.2, random_state=4)
-
-    modell = Pipeline([
-        ('poly', PolynomialFeatures(degree=3)),
-        ('linear', LinearRegression(fit_intercept=False))
-    ])
-
-    model = MultiOutputRegressor(modell)
+    estimator = LinearRegression()
+    model = MultiOutputRegressor(estimator)
 
     # Perform 6-fold cross validation
     #scores = cross_val_score(model, X, y, cv=5)
@@ -42,26 +28,22 @@ def multiouput_regressor(input, target, input_test, target_test, output):
     scores = cross_validate(model, X, y, cv=5, return_estimator=True)
     model2 = scores['estimator'][1]
 
-    model.fit(X, y)
-
     predictions = model2.predict(X_test)
+
+    # Remove exterme values
+    mask = predictions[:, 1] <= 1
+    y_test = y_test[mask]
+    predictions = predictions[mask]
+
     accuracy = metrics.r2_score(y_test, predictions)
     print("Cross-Predicted Accuracy: {}".format(accuracy))
 
     # The line / model
     fig, ax = plt.subplots()
-    ax.scatter(y_test, predictions, edgecolors=(0, 0, 0))
-    ax.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'k--', lw=4)
-    ax.set_xlabel('Measured')
-    ax.set_ylabel('Predicted')
+    ax.scatter(y_test[:, 0], y_test[:, 1], color='red', alpha=0.5)
+    ax.scatter(predictions[:, 0], predictions[:, 1], color='blue', alpha=0.5)
+    ax.set_xlabel('P')
+    ax.set_ylabel('Q')
     plt.show()
-
-    # Predict on new data
-    # fig, ax = plt.subplots()
-    # ax.scatter(y, predicted, edgecolors=(0, 0, 0))
-    # ax.plot([y.min(), y.max()], [y.min(), y.max()], 'k--', lw=4)
-    # ax.set_xlabel('Measured')
-    # ax.set_ylabel('Predicted')
-    # plt.show()
 
     np.savetxt(output, predictions)
