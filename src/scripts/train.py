@@ -14,14 +14,17 @@ def main():
     parser.add_argument(
         "-t",
         "--targets",
+        required=True,
         help="target data for raining")
     parser.add_argument(
         "-i",
         "--images",
+        required=True,
         help="directory with images")
     parser.add_argument(
         "-n",
         "--normalization",
+        required=True,
         help="file with mean and std of dataset")
     parser.add_argument(
         "-e",
