@@ -44,7 +44,7 @@ def main():
         qk_infered[:, 0],
         qk_infered[:, 1],
         edgecolor='k',
-        c="navy",
+        c="red",
         s=s,
         marker="s",
         alpha=a,
