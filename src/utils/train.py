@@ -38,12 +38,11 @@ def train(model, image_dir, targets, optimizer, epoch, loss_func, preprocess, lo
                 epoch, loss.item()))
 
 
-def regresion_mse(image_dir, targets, normalization, output):
+def regresion_mse(image_dir, targets, normalization, output, epochs=100):
 
     # Setup
     lr = 0.001
     momentum = 0.9
-    epochs=100
     mean, std = normalization
 
     targets = targets.reshape(-1, 2, 1)

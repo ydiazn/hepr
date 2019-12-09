@@ -23,13 +23,20 @@ def main():
         "-n",
         "--normalization",
         help="file with mean and std of dataset")
+    parser.add_argument(
+        "-e",
+        "--epochs",
+        help="file with mean and std of dataset")
 
     args = parser.parse_args()
 
     targets = np.loadtxt(args.targets, usecols=(1, 2))
     normalization = np.loadtxt(args.normalization)
+    kwargs = {}
+    if hasattr(args, 'epochs'):
+        kwargs.update({'epochs': int(args.epochs)})
 
-    train.regresion_mse(args.images, targets, normalization, args.output)
+    train.regresion_mse(args.images, targets, normalization, args.output, **kwargs)
 
 
 if __name__ == "__main__":
