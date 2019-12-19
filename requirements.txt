@@ -3,10 +3,10 @@ ipython
 numpy
 imageio
 pandas
-# scipy
-# matplotlib
-# pillow
-# opencv-python
+scipy
+matplotlib
+pillow
+opencv-python
 
 pyswarms
 pyyaml
