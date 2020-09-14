@@ -14,6 +14,7 @@ import numpy as np
 
 from almiky.metrics import metrics
 
+
 def psnr(swarm, cover_work, data, get_ws_work):
     '''
     psnr(swarm, block, msg) => np.array: return swarm fitness
