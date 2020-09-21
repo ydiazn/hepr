@@ -43,5 +43,6 @@ class GenericObjectiveFunctionTest(unittest.TestCase):
         np.testing.assert_array_equal(fitness, expected_fitness)
 
 
+
 if __name__ == '__main__':
     unittest.main()
