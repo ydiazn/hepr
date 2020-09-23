@@ -11,7 +11,6 @@ from torchvision import transforms
 
 from src.optimization import functions as fx
 from src.hidders import hidders as hide
-from src.utils.reduction import average_first_eight_coeficients
 
 
 logging.basicConfig(level=logging.INFO)
@@ -173,3 +172,45 @@ def qkrawtchouk8x8_regression(indir, file, data, parameters):
     indir = Path(indir)
     results = [calculate(image, parameters[i]) for i, image in enumerate(sorted(indir.iterdir()))]
     np.savetxt(file, results, fmt='%s')
+
+
+def generic(indir, config, output, data, objective, **kwargs):
+    '''
+
+    Arguments:
+    config -- dict: optimizer settings
+    objective -- callable: objective function
+    hider_factory: hider factory
+    '''
+
+    # Create bounds
+    max_bound = config['optimizer']['bounds']['max']
+    min_bound = config['optimizer']['bounds']['min']
+    bounds = (min_bound, max_bound)
+
+    def calculate(image):
+        cover_work = imageio.imread(str(image))
+        # First eight coeficient averaging
+
+        kwargs.update({'cover_work': cover_work})
+        # Call instance of PSO
+        optimizer = ps.single.GlobalBestPSO(
+            n_particles=config['optimizer']['n_particle'],
+            dimensions=config['optimizer']['dimensions'],
+            options=config['optimizer']['options'],
+            bounds=bounds
+        )
+        cost, pos = optimizer.optimize(
+            objective, config['iterations'], **kwargs)
+        logging.info('image: {}'.format(image.name))
+        logging.info('performance: {}'.format(cost))
+        logging.info('particle: {}'.format(pos))
+
+        return (image.name, cost, pos)
+
+    # Perform optimization
+    indir = Path(indir)
+    output = Path(output)
+    results = [calculate(image) for image in sorted(indir.iterdir())]
+    np.savetxt(str(output), results, fmt='%s')
+

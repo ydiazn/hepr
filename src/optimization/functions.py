@@ -13,18 +13,6 @@ import math
 
 import numpy as np
 
-from almiky.attacks.noise import salt_paper_noise
-from almiky.embedding.dpc.qim import BinaryQuantizationIndexModulation
-from almiky.exceptions import NotMatrixQuasiOrthogonal
-from almiky.hiders.base import SingleBitHider
-from almiky.hiders.base import TransformHider
-from almiky.hiders.block import BlockBitHider
-from almiky.metrics import imperceptibility
-from almiky.metrics import robustness
-from almiky.moments.matrix import dct, QKrawtchoukMatrix, Transform
-from almiky.utils.scan.scan import ScanMapping
-from almiky.utils.utils import max_psnr
-
 
 def psnr(swarm, cover_work, data, get_ws_work):
     '''
@@ -52,63 +40,49 @@ def generic(swarm, caller, *args, **kwargs):
     return np.array(fitness)
 
 
-def psnr_ber_qkrawtchouk(swarm, cover_work, data):
+def weighted_agregation(
+        swarm, cover_work, data, processor,
+        hider_factory, w1=0.5, w2=0.5, **kwargs):
+    '''
+    Calculate and return weighted agregation between psnr and ber.
 
-    fitness = []
-    scan = ScanMapping()
+    Arguments:
+    swarm -- np.array: swarm
+    cover_work -- np.array: cover work
+    data -- str: binary data to hide
+    processor -- calable: calculate and return psnr and ber
+    w1 -- double: pnsr weight; must be a value between 0 and 1
+    w2 -- double: ber weight; must be a equal to (1 - w1)
+    '''
 
-    for index, step, p, q in swarm:
-        try:
-            transform = QKrawtchoukMatrix((8, 8), p=p, q=q)
-            hider = BlockBitHider(
-                TransformHider(
-                    SingleBitHider(
-                        scan,
-                        BinaryQuantizationIndexModulation(step)
-                    ),
-                    transform
-                )
-            )
-
-            ws_work = hider.insert(cover_work, data, index=index)
-            extracted = hider.extract(ws_work, index=index)
-
-            psnr = imperceptibility.psnr(cover_work, ws_work)
-            ber = robustness.ber(extracted, data)
-            scale = max_psnr(cover_work.shape)
-            performance = 1 - psnr / scale + ber
-
-        except NotMatrixQuasiOrthogonal:
-            performance = 1
-
-        fitness.append(performance)
-
-    return np.array(fitness)
-
-
-def psnr_ber_dct(swarm, cover_work, data):
-    fitness = []
-    scan = ScanMapping()
-
-    for index, step in swarm:
-        hider = BlockBitHider(
-            TransformHider(
-                SingleBitHider(
-                    scan,
-                    BinaryQuantizationIndexModulation(step)
-                ),
-                Transform(dct)
-            )
+    fitness = map(
+        lambda fx, gx: w1 * fx + w2 * gx,
+        (
+            processor(hider_factory, cover_work, data, *particle, **kwargs)
+            for particle in swarm
         )
-
-        ws_work = hider.insert(cover_work, data, index=index)
-        extracted = hider.extract(ws_work, index=index)
-
-        psnr = imperceptibility.psnr(cover_work, ws_work)
-        ber = robustness.ber(extracted, data)
-        scale = max_psnr(cover_work.shape)
-
-        performance = 1 - psnr / scale + ber
-        fitness.append(performance)
+    )
 
     return np.array(fitness)
+
+
+def dynamic_weighted_agregation(
+        swarm, cover_work, data, processor,
+        hider_factory, alpha, get_iteration, **kwargs):
+    '''
+    calculate and return weighted agregation between psnr and ber.
+
+    Arguments:
+    swarm -- np.array: swarm
+    cover_work -- np.array: cover work
+    data -- str: binary data to hide
+    processor -- calable: calculate and return psnr and ber
+    get_iteration -- calable: return iteration of optimization algorithm
+    alpha -- double: adaptation frequency
+    '''
+    t = get_iteration()
+    w1 = abs(math.sin(2 * math.pi * t / alpha))
+    w2 = 1 - w1
+
+    return weighted_agregation(
+        swarm, cover_work, data, processor, hider_factory, w1=w1, w2=w2)

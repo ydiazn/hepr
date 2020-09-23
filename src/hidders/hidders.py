@@ -8,6 +8,7 @@ def ident(matrix):
     I = np.identity(matrix.shape[0])
     return sum(sum(abs(np.around(np.dot(matrix.T, matrix)))-I))
 
+
 def qkrawtchouk8x8(particle, cover_work, data):
     p, q = particle
     kwargs = dict(p=p, q=q)
