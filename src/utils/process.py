@@ -4,19 +4,18 @@ from pathlib import Path
 import imageio
 import numpy as np
 import pyswarms as ps
-from almiky.metrics import metrics
-from almiky.utils.blocks_class import BlocksImage
-from PIL import Image
-from torchvision import transforms
+#from almiky.metrics import metrics
+#from almiky.utils.blocks_class import BlocksImage
+#from torchvision import transforms
 
-from src.optimization import functions as fx
-from src.hidders import hidders as hide
+#from src.optimization import functions as fx
+#from src.hidders import hidders as hide
 
 
 logging.basicConfig(level=logging.INFO)
 
 
-def qkrawtchouk8x8(indir, config, output, data):
+'''def qkrawtchouk8x8(indir, config, output, data):
 
     # Create bounds
     max_bound = config['optimizer']['bounds']['max']
@@ -152,7 +151,6 @@ def average_per_block(indir, output):
 def qkrawtchouk8x8_regression(indir, file, data, parameters):
 
     def calculate(image, parameters):
-       
         from src.hidders import hidders
         from almiky.exceptions import NotMatrixQuasiOrthogonal
 
@@ -171,7 +169,7 @@ def qkrawtchouk8x8_regression(indir, file, data, parameters):
 
     indir = Path(indir)
     results = [calculate(image, parameters[i]) for i, image in enumerate(sorted(indir.iterdir()))]
-    np.savetxt(file, results, fmt='%s')
+    np.savetxt(file, results, fmt='%s')'''
 
 
 def generic(indir, config, output, data, objective, **kwargs):
@@ -192,7 +190,12 @@ def generic(indir, config, output, data, objective, **kwargs):
         cover_work = imageio.imread(str(image))
         # First eight coeficient averaging
 
-        kwargs.update({'cover_work': cover_work})
+        kwargs.update(
+            {
+                'cover_work': cover_work[:, :, 1],
+                'data': data
+            }
+        )
         # Call instance of PSO
         optimizer = ps.single.GlobalBestPSO(
             n_particles=config['optimizer']['n_particle'],
@@ -206,7 +209,7 @@ def generic(indir, config, output, data, objective, **kwargs):
         logging.info('performance: {}'.format(cost))
         logging.info('particle: {}'.format(pos))
 
-        return (image.name, cost, pos)
+        return (image.name, cost, *pos)
 
     # Perform optimization
     indir = Path(indir)
@@ -214,3 +217,32 @@ def generic(indir, config, output, data, objective, **kwargs):
     results = [calculate(image) for image in sorted(indir.iterdir())]
     np.savetxt(str(output), results, fmt='%s')
 
+
+def performance(
+        indir, output, data, swarm,
+        processor, hider_factory, **kwargs):
+    '''
+
+    Arguments:
+    config -- dict: optimizer settings
+    swarm -- arguments optimized
+    processor -- callable: get performace
+    hider_factory: hider factory
+    '''
+
+    def calculate(image, particle):
+        cover_work = imageio.imread(str(image))[:, :, 1]
+        psnr, ber = processor(
+            hider_factory, cover_work, data, *particle, **kwargs)
+
+        return image.name, psnr, ber
+
+    # Perform optimization
+    indir = Path(indir)
+    output = Path(output)
+    results = [
+        calculate(image, particle)
+        for image, particle
+        in zip(sorted(indir.iterdir()), swarm)
+    ]
+    np.savetxt(str(output), results, fmt='%s')

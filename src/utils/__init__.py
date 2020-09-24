@@ -1,4 +1,4 @@
-from src.nets import regression
+'''from src.nets import regression
 
 def get_net(name, **kwargs):
     if name == 'regression':
@@ -8,4 +8,4 @@ def get_net(name, **kwargs):
     else:
         raise NotImplementedError('%s net was not supported' % name)
 
-    return clss(**kwargs)
+    return clss(**kwargs)'''

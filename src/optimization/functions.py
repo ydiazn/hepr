@@ -11,6 +11,7 @@ that contains all the computed fitness for each particle.
 '''
 import math
 
+from almiky.metrics import imperceptibility
 import numpy as np
 
 
@@ -56,14 +57,14 @@ def weighted_agregation(
     '''
 
     fitness = map(
-        lambda fx, gx: w1 * fx + w2 * gx,
+        lambda fx: w1 * fx[0] + w2 * fx[1],
         (
             processor(hider_factory, cover_work, data, *particle, **kwargs)
             for particle in swarm
         )
     )
 
-    return np.array(fitness)
+    return np.array(list(fitness))
 
 
 def dynamic_weighted_agregation(
