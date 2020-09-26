@@ -8,7 +8,7 @@ from src.processors import pnsr_ber_index_scaled
 from src.utils.process import generic
 
 
-def main(indir, output, data, config):
+def main(indir, output, data, config, **kwargs):
     with open(config, 'r') as file:
         config = json.loads(file.read())
 
@@ -19,6 +19,7 @@ def main(indir, output, data, config):
     generic(
         indir, config, output, data, weighted_agregation,
         processor=pnsr_ber_index_scaled, hider_factory=DCTBitHiderFactory,
+        **kwargs
     )
 
 

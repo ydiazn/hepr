@@ -43,7 +43,7 @@ def generic(swarm, caller, *args, **kwargs):
 
 def weighted_agregation(
         swarm, cover_work, data, processor,
-        hider_factory, w1=0.5, w2=0.5, **kwargs):
+        hider_factory, w1=0.5, **kwargs):
     '''
     Calculate and return weighted agregation between psnr and ber.
 
@@ -55,6 +55,8 @@ def weighted_agregation(
     w1 -- double: pnsr weight; must be a value between 0 and 1
     w2 -- double: ber weight; must be a equal to (1 - w1)
     '''
+
+    w2 = 1 - w1
 
     fitness = map(
         lambda fx: w1 * fx[0] + w2 * fx[1],
