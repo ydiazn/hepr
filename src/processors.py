@@ -1,3 +1,4 @@
+from almiky.attacks import noise
 from almiky.metrics import imperceptibility, robustness
 from almiky.utils import utils
 
@@ -11,9 +12,10 @@ def pnsr_ber_index(
     hider = hider_factory.build(step, *args, **kwargs)
 
     ws_work = hider.insert(cover_work, data, index=index)
-    extracted = hider.extract(ws_work, index=index)
-
     psnr = imperceptibility.psnr(cover_work, ws_work) / scale
+
+    ws_work = noise.salt_paper_noise(ws_work, 0.01)
+    extracted = hider.extract(ws_work, index=index)
     ber = robustness.ber(extracted, data)
 
     return psnr, ber
