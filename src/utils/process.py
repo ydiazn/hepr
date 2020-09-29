@@ -231,7 +231,7 @@ def performance(
     '''
 
     def calculate(image, particle):
-        cover_work = imageio.imread(str(image))
+        cover_work = imageio.imread(str(image))[:, :, 0]
         psnr, ber = processor(
             hider_factory, cover_work, data, *particle, **kwargs)
 
