@@ -4,12 +4,6 @@ from pathlib import Path
 import imageio
 import numpy as np
 import pyswarms as ps
-#from almiky.metrics import metrics
-#from almiky.utils.blocks_class import BlocksImage
-#from torchvision import transforms
-
-#from src.optimization import functions as fx
-#from src.hidders import hidders as hide
 
 
 logging.basicConfig(level=logging.INFO)
@@ -209,7 +203,11 @@ def generic(indir, config, output, data, objective, **kwargs):
         logging.info('performance: {}'.format(cost))
         logging.info('particle: {}'.format(pos))
 
-        return (image.name, cost, *pos)
+        index, step, *rest = pos
+        index = round(index)
+        step = round(step)
+
+        return (image.name, cost, index, step, *rest)
 
     # Perform optimization
     indir = Path(indir)
