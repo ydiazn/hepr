@@ -4,15 +4,15 @@ from almiky.metrics import imperceptibility, robustness
 from almiky.utils import utils
 
 
-def mean_ber(extract, ws_work, watermark, attacks):
+def ber_mean(extract, ws_work, watermark, attacks):
     return np.mean(
-        (
+        [
             robustness.ber(
                 extract(attack(ws_work)),
                 watermark
             )
             for attack in attacks
-        )
+        ]
     )
 
 
@@ -37,7 +37,7 @@ def pnsr_ber_index(
     watermark = hider.extract(ws_work, index=index)
     if attacks:
         extract = get_extractor(hider.extract, index)
-        ber = mean_ber(extract, ws_work, watermark, attacks)
+        ber = ber_mean(extract, ws_work, watermark, attacks)
     else:
         ber = robustness.ber(watermark, data)
 
