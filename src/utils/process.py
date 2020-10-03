@@ -1,6 +1,7 @@
 import logging
 from pathlib import Path
 
+from almiky.utils import utils
 import imageio
 import numpy as np
 import pyswarms as ps
@@ -166,7 +167,7 @@ def qkrawtchouk8x8_regression(indir, file, data, parameters):
     np.savetxt(file, results, fmt='%s')'''
 
 
-def generic(indir, config, output, data, objective, **kwargs):
+def generic(indir, config, output, data, objective, counter=False, **kwargs):
     '''
 
     Arguments:
@@ -182,14 +183,17 @@ def generic(indir, config, output, data, objective, **kwargs):
 
     def calculate(image):
         cover_work = imageio.imread(str(image))
-        # First eight coeficient averaging
-
+        cover_work = cover_work[:, :, 1]
         kwargs.update(
             {
-                'cover_work': cover_work[:, :, 1],
-                'data': data
+                'cover_work': cover_work,
+                'data': data,
+                'max_psnr': utils.max_psnr(cover_work.shape)
             }
         )
+        if counter:
+            kwargs.update({'get_iteration': utils.get_counter()})
+
         # Call instance of PSO
         optimizer = ps.single.GlobalBestPSO(
             n_particles=config['optimizer']['n_particle'],
@@ -197,6 +201,7 @@ def generic(indir, config, output, data, objective, **kwargs):
             options=config['optimizer']['options'],
             bounds=bounds
         )
+
         cost, pos = optimizer.optimize(
             objective, config['iterations'], **kwargs)
         logging.info('image: {}'.format(image.name))
@@ -208,6 +213,53 @@ def generic(indir, config, output, data, objective, **kwargs):
         step = round(step)
 
         return (image.name, cost, index, step, *rest)
+
+    # Perform optimization
+    indir = Path(indir)
+    output = Path(output)
+    results = [calculate(image) for image in sorted(indir.iterdir())]
+    np.savetxt(str(output), results, fmt='%s')
+
+
+def binary_generic(
+        indir, config, output, data, objective, counter=False, **kwargs):
+    '''
+
+    Arguments:
+    config -- dict: optimizer settings
+    objective -- callable: objective function
+    hider_factory: hider factory
+    '''
+
+    def calculate(image):
+        cover_work = imageio.imread(str(image))
+        kwargs.update(
+            {
+                'cover_work': cover_work[:, :, 1],
+                'data': data
+            }
+        )
+        if counter:
+            kwargs.update({'get_iteration': utils.get_counter()})
+
+        # Call instance of PSO
+        optimizer = ps.discrete.BinaryPSO(
+            n_particles=config['optimizer']['n_particle'],
+            dimensions=config['optimizer']['dimensions'],
+            options=config['optimizer']['options'],
+        )
+        cost, pos = optimizer.optimize(
+            objective, config['iterations'], **kwargs)
+        logging.info('image: {}'.format(image.name))
+        logging.info('performance: {}'.format(cost))
+        logging.info('particle: {}'.format(pos))
+
+        step = pos[:7]
+        index = pos[7:]
+        index = index.dot(2**np.arange(index.size)[::-1])
+        step = step.dot(2**np.arange(step.size)[::-1])
+
+        return (image.name, cost, index, step)
 
     # Perform optimization
     indir = Path(indir)

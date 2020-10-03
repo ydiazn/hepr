@@ -18,7 +18,7 @@ def ber_mean(extract, ws_work, watermark, attacks):
 
 def pnsr_ber_index(
         hider_factory, cover_work, data,
-        index, step, *args, attacks=None, scale=1, **kwargs):
+        index, step, *args, attacks=None, **kwargs):
 
     def get_extractor(extractor, index):
         def wrapper(ws_work):
@@ -28,11 +28,11 @@ def pnsr_ber_index(
 
     index = round(index)
     step = round(step)
+
     data = utils.char2bin(data)
     hider = hider_factory.build(step, *args, **kwargs)
-
     ws_work = hider.insert(cover_work, data, index=index)
-    psnr = imperceptibility.psnr(cover_work, ws_work) / scale
+    psnr = imperceptibility.psnr(cover_work, ws_work)
 
     watermark = hider.extract(ws_work, index=index)
     if attacks:
@@ -48,9 +48,29 @@ def pnsr_ber_index_scaled(
         hider_factory, cover_work, data,
         index, step, *args, **kwargs):
 
+    psnr, ber = pnsr_ber_index(
+        hider_factory, cover_work, data,
+        index, step, *args, **kwargs)
+
+    return 1 - psnr, ber
+
+
+def binary_pnsr_ber_index_scaled(
+        hider_factory, cover_work, data,
+        *particle, **kwargs):
+
+    particle = np.array(list(particle))
+    step = particle[:7]
+    index = particle[7:]
+    index = index.dot(2**np.arange(index.size)[::-1])
+    step = step.dot(2**np.arange(step.size)[::-1])
+
+    if step == 0:
+        step = 1
+
     scale = utils.max_psnr(cover_work.shape)
     psnr, ber = pnsr_ber_index(
         hider_factory, cover_work, data,
-        index, step, *args, scale=scale, **kwargs)
+        index, step, scale=scale, **kwargs)
 
     return 1 - psnr, ber

@@ -9,10 +9,14 @@ the search-space.
 functions must return an array of size (n_particles, )
 that contains all the computed fitness for each particle.
 '''
+import logging
 import math
 
 from almiky.metrics import imperceptibility
 import numpy as np
+
+
+logging.basicConfig(level=logging.INFO)
 
 
 def psnr(swarm, cover_work, data, get_ws_work):
@@ -43,7 +47,7 @@ def generic(swarm, caller, *args, **kwargs):
 
 def weighted_agregation(
         swarm, cover_work, data, processor,
-        hider_factory, w1=0.5, **kwargs):
+        hider_factory, max_psnr, w1=0.5, **kwargs):
     '''
     Calculate and return weighted agregation between psnr and ber.
 
@@ -56,10 +60,18 @@ def weighted_agregation(
     w2 -- double: ber weight; must be a equal to (1 - w1)
     '''
 
+    def agregation(fx, w1, w2):
+        psnr, ber = fx
+        a = max_psnr - 44
+        b = a if psnr > 44 else 44
+        psnr = abs(psnr - 44) / b
+
+        return w1 * psnr + w2 * ber
+
     w2 = 1 - w1
 
     fitness = map(
-        lambda fx: w1 * fx[0] + w2 * fx[1],
+        lambda fx: agregation(fx, w1, w2),
         (
             processor(hider_factory, cover_work, data, *particle, **kwargs)
             for particle in swarm
@@ -85,7 +97,7 @@ def dynamic_weighted_agregation(
     '''
     t = get_iteration()
     w1 = abs(math.sin(2 * math.pi * t / alpha))
-    w2 = 1 - w1
+    logging.info('weigth: {}'.format(w1))
 
     return weighted_agregation(
-        swarm, cover_work, data, processor, hider_factory, w1=w1, w2=w2)
+        swarm, cover_work, data, processor, hider_factory, w1=w1)
