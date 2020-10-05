@@ -7,9 +7,7 @@ from src.processors import pnsr_ber_index
 from src.utils.process import generic
 
 
-def main(
-        indir, output, data, config, factory,
-        function="cwa", attacks=None, **kwargs):
+def main(indir, output, data, config, **kwargs):
     with open(config, 'r') as file:
         config = json.loads(file.read())
 
@@ -18,6 +16,9 @@ def main(
         file.close()
 
     args = []
+    factory = config['hider']
+    function = config['objective']
+    attacks = config['attacks']
     factory = utils.hider_factories[factory]
     if function == "dwa":
         kwargs.update({'counter': True})
@@ -26,8 +27,7 @@ def main(
         attacks = [
             utils.get_attack(
                 utils.attack_callables[attack['name']],
-                *attack['args'],
-                **attack['kwargs']
+                **attack['parameters']
             )
             for attack in attacks
         ]
@@ -35,7 +35,7 @@ def main(
     generic(
         indir, config, output, data, utils.objective_functions[function],
         *args, processor=pnsr_ber_index, hider_factory=factory,
-        attacks=attacks, **kwargs
+        attacks=attacks, reference_psnr=config['reference_psnr'], **kwargs
     )
 
 

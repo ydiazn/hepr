@@ -47,7 +47,7 @@ def generic(swarm, caller, *args, **kwargs):
 
 def weighted_agregation(
         swarm, cover_work, data, processor,
-        hider_factory, max_psnr, w1=0.5, **kwargs):
+        hider_factory, max_psnr, reference_psnr, w1=0.5, **kwargs):
     '''
     Calculate and return weighted agregation between psnr and ber.
 
@@ -60,18 +60,18 @@ def weighted_agregation(
     w2 -- double: ber weight; must be a equal to (1 - w1)
     '''
 
-    def agregation(fx, w1, w2):
+    def get_psnr(fx, w1, w2):
         psnr, ber = fx
-        a = max_psnr - 44
-        b = a if psnr > 44 else 44
-        psnr = abs(psnr - 44) / b
+        diff = max_psnr - reference_psnr
+        scale = diff if psnr > reference_psnr else reference_psnr
+        psnr = abs(psnr - reference_psnr) / scale
 
-        return w1 * psnr + w2 * ber
+        return psnr
 
     w2 = 1 - w1
 
     fitness = map(
-        lambda fx: agregation(fx, w1, w2),
+        lambda fx: w1 * get_psnr(fx[0]) + w2 * fx[1],
         (
             processor(hider_factory, cover_work, data, *particle, **kwargs)
             for particle in swarm

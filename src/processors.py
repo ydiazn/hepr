@@ -18,7 +18,7 @@ def ber_mean(extract, ws_work, watermark, attacks):
 
 def pnsr_ber_index(
         hider_factory, cover_work, data,
-        index, step, *args, attacks=None, **kwargs):
+        index, step, *args, attacks=None, reference_psnr=44, **kwargs):
 
     def get_extractor(extractor, index):
         def wrapper(ws_work):

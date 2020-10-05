@@ -177,13 +177,12 @@ def generic(indir, config, output, data, objective, counter=False, **kwargs):
     '''
 
     # Create bounds
-    max_bound = config['optimizer']['bounds']['max']
-    min_bound = config['optimizer']['bounds']['min']
+    max_bound = config['optimization']['optimizer']['bounds']['max']
+    min_bound = config['optimization']['optimizer']['bounds']['min']
     bounds = (min_bound, max_bound)
 
     def calculate(image):
         cover_work = imageio.imread(str(image))
-        cover_work = cover_work[:, :, 1]
         kwargs.update(
             {
                 'cover_work': cover_work,
@@ -196,14 +195,14 @@ def generic(indir, config, output, data, objective, counter=False, **kwargs):
 
         # Call instance of PSO
         optimizer = ps.single.GlobalBestPSO(
-            n_particles=config['optimizer']['n_particle'],
-            dimensions=config['optimizer']['dimensions'],
-            options=config['optimizer']['options'],
+            n_particles=config['optimization']['optimizer']['n_particle'],
+            dimensions=config['optimization']['optimizer']['dimensions'],
+            options=config['optimization']['optimizer']['options'],
             bounds=bounds
         )
 
         cost, pos = optimizer.optimize(
-            objective, config['iterations'], **kwargs)
+            objective, config['optimization']['iterations'], **kwargs)
         logging.info('image: {}'.format(image.name))
         logging.info('performance: {}'.format(cost))
         logging.info('particle: {}'.format(pos))
