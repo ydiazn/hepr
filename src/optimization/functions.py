@@ -60,8 +60,7 @@ def weighted_agregation(
     w2 -- double: ber weight; must be a equal to (1 - w1)
     '''
 
-    def get_psnr(fx, w1, w2):
-        psnr, ber = fx
+    def get_psnr(psnr):
         diff = max_psnr - reference_psnr
         scale = diff if psnr > reference_psnr else reference_psnr
         psnr = abs(psnr - reference_psnr) / scale
