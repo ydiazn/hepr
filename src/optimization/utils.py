@@ -6,8 +6,16 @@ from src.optimization import functions
 
 hider_factories = {
     "qk": factories.QKrawtchoukBitHiderFactory,
+    "qk": factories.CharlierBitHiderFactory,
     "dct": factories.DCTBitHiderFactory,
-    "qct": factories.QCharlierThebichefBitHiderFactory
+    "qct": factories.QCharlierThebichefBitHiderFactory,
+    "qct2": factories.QCharlierThebichefBitHiderFactory2,
+    "tch": factories.ThebichefBitHiderFactory,
+    "dctt": factories.DCTThebichefBitHiderFactory,
+    "tdct": factories.ThebichefDCTBitHiderFactory,
+    "cdct": factories.CharlierBitHiderFactory,
+    "c": factories.CharlierBitHiderFactory,
+    "c-s": factories.CharlierSobolevBitHiderFactory,
 }
 
 attack_callables = {
