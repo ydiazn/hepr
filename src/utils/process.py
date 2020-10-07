@@ -167,7 +167,7 @@ def qkrawtchouk8x8_regression(indir, file, data, parameters):
     np.savetxt(file, results, fmt='%s')'''
 
 
-def generic(indir, config, output, data, objective, counter=False, **kwargs):
+def generic(indir, config, output, data, objective, *args, counter=False, **kwargs):
     '''
 
     Arguments:
@@ -187,7 +187,8 @@ def generic(indir, config, output, data, objective, counter=False, **kwargs):
             {
                 'cover_work': cover_work,
                 'data': data,
-                'max_psnr': utils.max_psnr(cover_work.shape)
+                'max_psnr': utils.max_psnr(cover_work.shape),
+                'args': args
             }
         )
         if counter:
@@ -208,8 +209,8 @@ def generic(indir, config, output, data, objective, counter=False, **kwargs):
         logging.info('particle: {}'.format(pos))
 
         index, step, *rest = pos
-        index = round(index)
-        step = round(step)
+        index = int(round(index))
+        step = int(round(step))
 
         return (image.name, cost, index, step, *rest)
 
@@ -269,7 +270,7 @@ def binary_generic(
 
 def performance(
         indir, output, data, swarm,
-        processor, hider_factory, **kwargs):
+        processor, hider_factory, *args, **kwargs):
     '''
 
     Arguments:
@@ -282,13 +283,14 @@ def performance(
     def calculate(image, particle):
         cover_work = imageio.imread(str(image))
         psnr, ber = processor(
-            hider_factory, cover_work, data, *particle, **kwargs)
+            hider_factory, cover_work, data, *particle, *args, **kwargs)
 
         return image.name, psnr, ber
 
     # Perform optimization
     indir = Path(indir)
     output = Path(output)
+
     results = [
         calculate(image, particle)
         for image, particle

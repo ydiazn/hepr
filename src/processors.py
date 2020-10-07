@@ -26,8 +26,8 @@ def pnsr_ber_index(
 
         return wrapper
 
-    index = round(index)
-    step = round(step)
+    index = int(round(index))
+    step = int(round(step))
 
     data = utils.char2bin(data)
     hider = hider_factory.build(step, *args, **kwargs)

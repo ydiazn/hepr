@@ -59,6 +59,7 @@ def weighted_agregation(
     w1 -- double: pnsr weight; must be a value between 0 and 1
     w2 -- double: ber weight; must be a equal to (1 - w1)
     '''
+    args = kwargs.pop('args', [])
 
     def get_psnr(psnr):
         diff = max_psnr - reference_psnr
@@ -72,7 +73,7 @@ def weighted_agregation(
     fitness = map(
         lambda fx: w1 * get_psnr(fx[0]) + w2 * fx[1],
         (
-            processor(hider_factory, cover_work, data, *particle, **kwargs)
+            processor(hider_factory, cover_work, data, *particle, *args, **kwargs)
             for particle in swarm
         )
     )

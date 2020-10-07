@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 import fire
 
@@ -7,15 +8,17 @@ from src.processors import pnsr_ber_index
 from src.utils.process import generic
 
 
-def main(indir, output, data, config, **kwargs):
+def main(*args, config, output, data, **kwargs):
     with open(config, 'r') as file:
         config = json.loads(file.read())
 
-    with open(data, 'r') as file:
+    data_file = str(Path(config['data']).joinpath(data))
+    with open(data_file, 'r') as file:
         data = file.read()
         file.close()
 
-    args = []
+    indir = config['indir']
+    output = str(Path(config['output']).joinpath(output)) 
     factory = config['hider']
     function = config['objective']
     attacks = config['attacks']

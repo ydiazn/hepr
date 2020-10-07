@@ -6,7 +6,6 @@ from src.optimization import functions
 
 hider_factories = {
     "qk": factories.QKrawtchoukBitHiderFactory,
-    "qk": factories.CharlierBitHiderFactory,
     "dct": factories.DCTBitHiderFactory,
     "qct": factories.QCharlierThebichefBitHiderFactory,
     "qct2": factories.QCharlierThebichefBitHiderFactory2,
@@ -19,7 +18,8 @@ hider_factories = {
 }
 
 attack_callables = {
-    "salt_pepper": noise.salt_paper_noise
+    "salt_pepper": noise.salt_paper_noise,
+    "gaussian": noise.gaussian_noise,
 }
 
 objective_functions = {

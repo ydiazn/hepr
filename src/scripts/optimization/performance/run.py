@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 import fire
 import numpy as np
@@ -8,17 +9,21 @@ from src.processors import pnsr_ber_index
 from src.utils.process import performance
 
 
-def main(
-        indir, output, data, parameters, config, **kwargs):
+def main(config, output, data, *args, **kwargs):
 
     with open(config, 'r') as file:
         config = json.loads(file.read())
 
-    with open(data, 'r') as file:
+    data_file = str(Path(config['data']).joinpath(data))
+    with open(data_file, 'r') as file:
         data = file.read()
         file.close()
 
-    swarm = np.loadtxt(parameters, usecols=config['parameters'])
+    p_file = str(Path(config['output']).joinpath(output))
+    o_file = str(Path(config['poutput']).joinpath(output))
+    swarm = np.loadtxt(p_file, usecols=config['parameters'])
+    indir = config['indir']
+    output = config['poutput']
     factory = config['hider']
     attacks = config['attacks']
     factory = utils.hider_factories[factory]
@@ -33,8 +38,8 @@ def main(
         ]
 
     performance(
-        indir, output, data, swarm, processor=pnsr_ber_index,
-        hider_factory=factory, attacks=attacks
+        indir, o_file, data, swarm, pnsr_ber_index,
+        factory, *args, attacks=attacks
     )
 
 
