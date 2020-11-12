@@ -129,3 +129,5 @@ dmypy.json
 
 # Test data
 test_data
+
+src/scripts/dataset

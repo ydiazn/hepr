@@ -18,7 +18,7 @@ def main(*args, config, output, data, **kwargs):
         file.close()
 
     indir = config['indir']
-    output = str(Path(config['output']).joinpath(output)) 
+    output = str(Path(config['output']).joinpath(output))
     factory = config['hider']
     function = config['objective']
     attacks = config['attacks']

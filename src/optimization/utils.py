@@ -18,7 +18,7 @@ hider_factories = {
 }
 
 attack_callables = {
-    "salt_pepper": noise.salt_paper_noise,
+    "salt_pepper": noise.salt_pepper_noise,
     "gaussian": noise.gaussian_noise,
 }
 

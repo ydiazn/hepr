@@ -4,7 +4,7 @@ from almiky.hiders.base import TransformHider
 from almiky.hiders.block import BlockBitHider
 from almiky.moments import matrix
 from almiky.moments.matrix import ImageTransform, QKrawtchoukMatrix
-from almiky.moments.matrix import QCharlierMatrix, TchebichefMatrix
+from almiky.moments.matrix import TchebichefMatrix
 from almiky.moments.matrix import SeparableTransform
 from almiky.moments import transform
 from almiky.utils.scan.scan import ScanMapping
