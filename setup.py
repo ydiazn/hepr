@@ -1,0 +1,28 @@
+from setuptools import setup
+
+setup(name='herp',
+      version='0.1',
+      description='ERP hidding',
+      url='https://github.com/ydiazn/hepr.git',
+      author='Yenner Diaz',
+      author_email='yennerdiaz@gmail.com',
+      license='LGPL3',
+      packages=['src'],
+      install_requires=[
+          'numpy',
+          'scipy',
+          'mpmath',
+          'opencv-python',
+          'mpmath',
+          'imageio',
+          'matplotlib', 
+          'pyswarms',
+          'pyyaml',
+          'scikit-learn',
+          'pydicom',
+          'deid',
+          'coverage',
+          'factory-boy',
+          'fire',
+      ],
+      zip_safe=False)
